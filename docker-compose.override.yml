@@ -1,0 +1,43 @@
+services:
+    phpmyadmin:
+        container_name: padel-tournaments-phpmyadmin
+        image: phpmyadmin
+        restart: always
+        depends_on:
+            - database
+        env_file:
+            - ./.env
+        networks:
+            - local
+            - proxy
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.padel-tournaments-phpmyadmin.entrypoints=websecure"
+            - "traefik.http.routers.padel-tournaments-phpmyadmin.tls=true"
+            - "traefik.docker.network=traefik-proxy"
+            - "traefik.http.routers.padel-tournaments-phpmyadmin.rule=Host(`phpmyadmin.padel.local`)"
+    database:
+        networks:
+            - local
+            - proxy
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.padel-tournaments-database.entrypoints=websecure"
+            - "traefik.http.routers.padel-tournaments-database.tls=true"
+            - "traefik.docker.network=traefik-proxy"
+            - "traefik.http.routers.padel-tournaments-database.rule=Host(`db.padel.local`)"
+    website:
+        networks:
+            - local
+            - proxy
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.padel-tournaments-website.entrypoints=websecure"
+            - "traefik.http.routers.padel-tournaments-website.tls=true"
+            - "traefik.docker.network=traefik-proxy"
+            - "traefik.http.routers.padel-tournaments-website.rule=Host(`padel.local`)"
+
+networks:
+    proxy:
+        name: traefik-proxy
+        external: true
